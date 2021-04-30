@@ -1,0 +1,27 @@
+<launch>
+
+  <!-- defines name of the namespace of the drone -->
+  <arg name="UAV_NAME" default="$(env UAV_NAME)" />
+  <arg name="RUN_TYPE" default="$(env RUN_TYPE)" />
+  <!--arg name="frame_id" value="gps_origin" /-->
+
+  <arg name="simulation" default="true" />
+  <!--arg name="n_threads" default="9" /-->
+  <!-- will it run using GNU debugger? -->
+  <arg name="DEBUG" default="true" />
+  <arg unless="$(arg DEBUG)" name="launch_prefix_debug" value=""/>
+  <arg     if="$(arg DEBUG)" name="launch_prefix_debug" value="debug_roslaunch"/>
+  <arg name="custom_config_uav_names" default="" />
+
+  <!-- Namespace -->
+  <group ns="$(arg UAV_NAME)">
+
+    <!-- neha1 nodelet -->
+    <node pkg="marker_lander" name="marker_lander_node" type="marker_lander_node" output="screen">
+      <param name="uav_name" type="string" value="$(arg UAV_NAME)" />
+      <param name="frame_id" value=" gps_origin" />
+    </node>
+
+  </group>
+
+</launch>
