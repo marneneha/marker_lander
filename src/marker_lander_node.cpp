@@ -20,13 +20,13 @@ int main(int argc, char **argv)
 void takeoff()
 {
 	std::cout << __FILE__ << ":" << __LINE__ << "i am at takeoff start "  <<std::endl; 
-	motor_request.request.data = 1;
+	/*motor_request.request.data = 1;
 	motor_client.call(motor_request);
 	while(!motor_request.response.success)
 	{
 		ros::Duration(.1).sleep();
 		motor_client.call(motor_request);
-	}
+	}*/
 	std::cout << __FILE__ << ":" << __LINE__ << "motor on"  <<std::endl; 
 	//set arm
 	ros::Duration(5).sleep();
@@ -58,19 +58,23 @@ void takeoff()
 		ros::Duration(5).sleep();
 		takeoff_client.call(srv_takeoff);
 		std::cout << __FILE__ << ":" << __LINE__ << "i got in if after arming"<<"service responce"<<srv_takeoff.response.success<<std::endl; 
-		for(int i=0;i<100;i++)
+		/*while (!srv_takeoff.response.success)
 		{
-		//std::cout << __FILE__ << ":" << __LINE__ << "i got in while after arming"  <<std::endl; 
+		std::cout << __FILE__ << ":" << __LINE__ << "i got in if after arming"<<"service responce"<<srv_takeoff.response.success<<std::endl; 
 			ros::Duration(.1).sleep();
 			takeoff_client.call(srv_takeoff);
+		}*/
+		for(int i=0;i<100;i++)
+		{
+		std::cout << __FILE__ << ":" << __LINE__ << "i got in while after arming"  <<std::endl; 
+			takeoff_client.call(srv_takeoff);
 		}
-
-		if(takeoff_client.call(srv_takeoff)){
+		if(srv_takeoff.response.success){
 			ROS_INFO("takeoff %d", srv_takeoff.response.success);
 		}else{
 			ROS_ERROR("Failed Takeoff");
 		}
 		}
 	while(!takeoff_client.call(srv_takeoff)){}
-	  std::cout << __FILE__ << ":" << __LINE__ << "i am at takeoff end "  <<std::endl; 
+	  std::cout << __FILE__ << ":" << __LINE__ << "i am at takeoff end "<<std::endl; 
 }

@@ -23,7 +23,7 @@
     std::string arv_service_name = std::string("/")+"uav1"+ "/mavros/cmd/arming";
 	std::string land_service_name = std::string("/")+"uav1"+ "/mavros/cmd/land";
 	std::string mode_service_name = std::string("/")+"uav1"+ "/mavros/set_mode";
-	std::string takeoff_service_name = std::string("/")+"uav1"+ "/uav_manager/takeoff";
+	std::string takeoff_service_name = std::string("/")+"uav1"+ "/mavros/takeoff";
 
 
 
