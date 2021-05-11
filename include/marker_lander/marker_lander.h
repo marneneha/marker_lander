@@ -5,6 +5,16 @@
 #include <mavros_msgs/SetMode.h>
 #include <std_srvs/Trigger.h>
 #include <std_srvs/SetBool.h>
+#include <sensor_msgs/Image.h>
+//cv2 lib
+#include <image_transport/image_transport.h>
+#include <opencv2/opencv.hpp>
+#include <cv_bridge/cv_bridge.h>
+#include <sensor_msgs/image_encodings.h>
+#include <sensor_msgs/image_encodings.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+
 
 	std_srvs::SetBool					  motor_request;
 	mavros_msgs::CommandBool 			  arm_request;
@@ -16,6 +26,8 @@
     ros::ServiceClient                    set_mode_client;
     ros::ServiceClient                    takeoff_client;
     ros::ServiceClient                    land_client;
+    
+    image_transport::Subscriber           raw_image;
 
     ros::ServiceClient                    goto_client;
 
@@ -25,6 +37,7 @@
 	std::string takeoff_service_name = std::string("/")+"uav1"+ "/uav_manager/takeoff";
 	std::string land_service_name = std::string("/")+"uav1"+ "/mavros/cmd/land";
 
+    void raw_image_cb(const sensor_msgs::ImageConstPtr& msg);
 
 
     void takeoff();

@@ -5,14 +5,17 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "marker_lander_node");
     ros::NodeHandle nh("~");
 
+	image_transport::ImageTransport       it_(nh);
+	
 	motor_client = (nh.serviceClient<std_srvs::SetBool>(motor_service_name));
 	arm_client = (nh.serviceClient<mavros_msgs::CommandBool>(arm_service_name));
 	set_mode_client = (nh.serviceClient<mavros_msgs::SetMode>(mode_service_name));
 	takeoff_client = (nh.serviceClient<std_srvs::Trigger>(takeoff_service_name));
 	land_client = (nh.serviceClient<mavros_msgs::CommandTOL>(land_service_name));
+	raw_image = it_.subscribe("/uav1/bluefox_optflow/image_raw",10,raw_image_cb);
 
     takeoff();
-
+	ros::spin();
     return 0;
 
 }
@@ -84,4 +87,13 @@ void takeoff()
 		}
 	while(!takeoff_client.call(srv_takeoff)){}
 	  std::cout << __FILE__ << ":" << __LINE__ << "i am at takeoff end "<<std::endl; 
+}
+
+void raw_image_cb(const sensor_msgs::ImageConstPtr& msg)
+{
+	cv_bridge::CvImagePtr cv_ptr;
+	cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+   
+	cv::imshow("bf_feed",cv_ptr->image);
+	cv::waitKey(0); 
 }
