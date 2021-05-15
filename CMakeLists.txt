@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   image_transport
   sensor_msgs
+  mrs_msgs
   cv_bridge
 )
 find_package(OpenCV REQUIRED)
@@ -110,7 +111,7 @@ find_package(OpenCV REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES marker_lander_node
-  CATKIN_DEPENDS roscpp std_msgs geometry_msgs message_runtime mavros image_transport sensor_msgs  cv_bridge
+  CATKIN_DEPENDS roscpp std_msgs geometry_msgs message_runtime mavros image_transport sensor_msgs  mrs_msgs cv_bridge
   DEPENDS system_lib
 )
 
