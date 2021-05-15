@@ -7,9 +7,12 @@
 #include <std_srvs/SetBool.h>
 #include <sensor_msgs/Image.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <nav_msgs/Odometry.h>
 #include <mrs_msgs/Vec4.h>
 #include <mrs_msgs/MpcTrackerDiagnostics.h>
+#include <apriltag_ros/AprilTagDetectionArray.h>
+#include <apriltag_ros/AprilTagDetection.h>
 //cv2 lib
 #include <image_transport/image_transport.h>
 #include <opencv2/opencv.hpp>
@@ -37,10 +40,17 @@
 
     ros::Publisher                        pose_pub;
     ros::Subscriber                       local_pose_sub;
+    ros::Subscriber                       tag_detect_sub;
+
     ros::Timer                            pose_update_tim;
     image_transport::Subscriber           raw_image;
 
     bool                                  call_local_pose_cb= false;
+    bool                                  toggle = false;
+    bool                                  tag_detect = false;
+    float                                 goal_x;
+    float                                 goal_y;
+    float                                 goal_z;
 
 
     std::string motor_service_name = std::string("/")+"uav1"+ "/control_manager/motors";
@@ -50,9 +60,11 @@
     std::string goto_service_name = std::string("/")+"uav1"+ "/control_manager/goto";
 	std::string land_service_name = std::string("/")+"uav1"+ "/mavros/cmd/land";
     std::string local_pose_sub_name = std::string("/")+"uav1"+"/control_manager/mpc_tracker/diagnostics";
+    std::string tag_detect_sub_name = "/tag_detections";
 
     void raw_image_cb(const sensor_msgs::ImageConstPtr& msg);
     void local_pose_cb(const mrs_msgs::MpcTrackerDiagnostics::ConstPtr& msg);
+    void tag_detect_cb(const apriltag_ros::AprilTagDetectionArrayConstPtr& msg);
     void set_goal(float x, float y, float z, float yaw );
     void takeoff();
     void pose_update(const ros::TimerEvent&);

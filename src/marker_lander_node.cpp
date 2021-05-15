@@ -13,11 +13,17 @@ int main(int argc, char **argv)
 	takeoff_client = (nh.serviceClient<std_srvs::Trigger>(takeoff_service_name));
 	land_client = (nh.serviceClient<mavros_msgs::CommandTOL>(land_service_name));
 	goto_client = (nh.serviceClient<mrs_msgs::Vec4>(goto_service_name));
-	raw_image = it_.subscribe("/uav1/bluefox_optflow/image_raw",10,raw_image_cb);
-	local_pose_sub = nh.subscribe<mrs_msgs::MpcTrackerDiagnostics>(local_pose_sub_name,1,local_pose_cb);
+	//raw_image = it_.subscribe("/uav1/bluefox_optflow/image_raw",10,raw_image_cb);
+	local_pose_sub = nh.subscribe<mrs_msgs::MpcTrackerDiagnostics>(local_pose_sub_name,10,local_pose_cb);
+	tag_detect_sub = nh.subscribe<>(tag_detect_sub_name,10,tag_detect_cb);
 	pose_update_tim = nh.createTimer(ros::Duration(0.5), pose_update);
     takeoff();
 	
+	/*float x = -4;
+	float y = 29.5;
+	float z = 7.7;
+	float yaw = 0;
+	set_goal(x, y, z, yaw);*/
 	ROS_INFO("m here");
 	ros::spin();
     return 0;
@@ -33,14 +39,25 @@ void pose_update(const ros::TimerEvent&){
 	if(call_local_pose_cb)
 	{
 		ROS_INFO("inside if");
-		for(int i= 0; i<100; i++)
+		if(!tag_detect)
 		{
-			ROS_INFO("inside for %d iteration current pose is %f %f %f",i ,curr_pose.setpoint.position.x, curr_pose.setpoint.position.y, curr_pose.setpoint.position.z);
+			ROS_INFO("inside while of pose_update current pose is %f %f %f",curr_pose.setpoint.position.x, curr_pose.setpoint.position.y, curr_pose.setpoint.position.z);
 			z = z + 0.2;
 			ros::Duration(5).sleep();
 			set_goal(x, y, z, yaw);
 		}
+		if(tag_detect)
+		{
+			ROS_INFO("inside pose_update out of while");
+			x= x + goal_x+1;
+			y= y - goal_y;
+			z= z - goal_z;
+			ROS_INFO("calling landing setgoal x is %f y is %f z is %f",x ,y ,z);
+			set_goal(x, y, z, yaw);
+		}
+		
 	}
+	//toggle = ~toggle;
 }
 void takeoff()
 {
@@ -106,7 +123,6 @@ void takeoff()
 	ros::Duration(10).sleep();
 	  ROS_INFO("i am at takeoff end "); 
 }
-
 void set_goal(float x, float y, float z, float yaw )
 {
 	std::cout<<"inside set_goal function"<<"\n";
@@ -119,16 +135,28 @@ void set_goal(float x, float y, float z, float yaw )
 }
 void raw_image_cb(const sensor_msgs::ImageConstPtr& msg)
 {
-	cv_bridge::CvImagePtr cv_ptr;
-	cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
-   
-	cv::imshow("bf_feed",cv_ptr->image);
-	cv::waitKey(0); 
+	
+		cv_bridge::CvImagePtr cv_ptr;
+		cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+	
+		cv::imshow("bf_feed",cv_ptr->image);
+		cv::waitKey(0);
+	 
 }
 void local_pose_cb(const mrs_msgs::MpcTrackerDiagnostics::ConstPtr& msg)
 {
 	curr_pose = *msg;
 	call_local_pose_cb = true;
 	ROS_INFO("inside local pose callback pose is %f %f %f",curr_pose.setpoint.position.x, curr_pose.setpoint.position.y, curr_pose.setpoint.position.z);
-
+}
+void tag_detect_cb(const apriltag_ros::AprilTagDetectionArrayConstPtr& msg){
+	std::cout<<"detection here is"<<msg->detections.size();
+	if(msg->detections.size()>0)
+	{
+		tag_detect = true;
+		goal_x = msg->detections[0].pose.pose.pose.position.x;
+		goal_y = msg->detections[0].pose.pose.pose.position.y;
+		goal_z = msg->detections[0].pose.pose.pose.position.z;
+	}
+	
 }

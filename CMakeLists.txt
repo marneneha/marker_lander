@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   mrs_msgs
   cv_bridge
+  apriltag_ros
 )
 find_package(OpenCV REQUIRED)
 ## System dependencies are found with CMake's conventions
@@ -111,7 +112,7 @@ find_package(OpenCV REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES marker_lander_node
-  CATKIN_DEPENDS roscpp std_msgs geometry_msgs message_runtime mavros image_transport sensor_msgs  mrs_msgs cv_bridge
+  CATKIN_DEPENDS roscpp std_msgs geometry_msgs message_runtime mavros image_transport sensor_msgs  mrs_msgs cv_bridge apriltag_ros
   DEPENDS system_lib
 )
 
